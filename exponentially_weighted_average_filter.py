@@ -5,9 +5,10 @@ Created on Sun Apr  8 22:16:57 2018
 """
 import numpy as np
 from matplotlib import pyplot as plt
+from scipy.signal import medfilt
 
 #%% Generage data
-N = 300
+N = 3000
 sigma = 0.1
 data = np.random.random(N)*sigma
 data[0] = sigma # make the first point biased
@@ -18,7 +19,7 @@ data[break_idx:] += 1
 
 
 #%% Exponentially weighted average with bias correction
-beta = 0.98
+beta = 0.998
 data_filtered = np.zeros(len(data) + 1)
 data_filtered_corrected = np.copy(data_filtered)
 bias_correction_idx = 0
@@ -33,7 +34,10 @@ for i in range(N):
     # bias correction    
     data_filtered_corrected[i+1] = data_filtered[i+1] / (1 - beta ** (i+1 - bias_correction_idx))
 
+data_median = medfilt(data, int(1/(1-beta)))
+
 plt.plot(data, label = 'raw')
 plt.plot(data_filtered[1:], label = 'filtered')
 plt.plot(data_filtered_corrected[1:], label = 'filtered corrected')
+plt.plot(data_median, label = 'median filter')
 plt.legend()
